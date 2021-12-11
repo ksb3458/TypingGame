@@ -20,74 +20,57 @@ public class GamePanel extends JPanel {
 	private JTextField input = new JTextField(30);
 	private ScorePanel scorePanel = null;
 	private PlantPanel plantPanel = null;
+	private GameGroundPanel gameGroundPanel = new GameGroundPanel();
 	private TextSource textSource = new TextSource("words.txt"); // 단어 벡터 생성
-	private FallingThread thread = null; 
-	private String fallingWord = null;
-	private JLabel label = new JLabel(); // 떨어지는 단어 
-	private JLabel labelIcon = new JLabel();
-	private ImageIcon icon = null;
-	private boolean gameOn = false;
-	
+	private CreateThread createTh = null;
+	private FallingThread fallingTh = null;
+	private Vector<JLabel> labelVector = new Vector<JLabel>();
+	private Vector<JLabel> iconVector = new Vector<JLabel>();
+	private Vector<Integer> scoreVector = new Vector<Integer>();
+
 	public GamePanel(ScorePanel scorePanel, PlantPanel plantPanel) {
 		this.scorePanel = scorePanel;
 		this.plantPanel = plantPanel;
 
 		setLayout(new BorderLayout());
-		add(new GameGroundPanel(), BorderLayout.CENTER);
+		add(gameGroundPanel, BorderLayout.CENTER);
 		add(new InputPanel(), BorderLayout.SOUTH);
-		
+
 		input.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JTextField tf = (JTextField)(e.getSource());
+				JTextField tf = (JTextField) (e.getSource());
 				String inWord = tf.getText();
-				/*if(!isGameOn())
-					return;
-					
-				boolean match = matchWord(inWord);*/
-				
-				if(label.getText().equals(inWord)) { // 맞추기 성공
-					scorePanel.increase();
-					tf.setText("");
-					thread.interrupt();
-					startGame();
+				for (int i = 0; i < labelVector.size(); i++) {
+					if (labelVector.get(i).getText().equals(inWord)) { // 맞추기 성공
+						if (scoreVector.get(i) == 0)
+							scorePanel.increase10();
+						else if (scoreVector.get(i) == 1)
+							scorePanel.increase20();
+						tf.setText("");
+						gameGroundPanel.remove(labelVector.get(i));
+						gameGroundPanel.remove(iconVector.get(i));
+						labelVector.remove(i);
+						iconVector.remove(i);
+						scoreVector.remove(i);
+					}
 				}
 			}
 		});
-		
-		startGame();
 	}
-	
-	public void startGame() {
-		int xLocation = (int)(Math.random()*290) + 1;
-		// 단어 한 개 선택		
-		ImageIcon oriIcon = new ImageIcon("rain.png");
-		Image img = oriIcon.getImage();
-		Image img2 = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-		icon = new ImageIcon(img2);
-		
-		fallingWord = textSource.get();
-		label.setText(fallingWord);
-		label.setSize(200, 30); // 레이블 크기
-		label.setLocation(xLocation, 0); // 레이블 위치
-		label.setForeground(Color.MAGENTA); //레이블의 글자 색을 설정한다.				
-		label.setFont(new Font("Tahoma", Font.ITALIC, 20)); // 레이블 글자의 폰트를 설정한다.
-		
-		labelIcon.setIcon(icon);
-		labelIcon.setSize(30, 30); // 레이블 크기
-		labelIcon.setLocation(xLocation - 30, 0); // 레이블 위치
 
-		thread = new FallingThread(this, label, labelIcon); // 게임 스레드
-		thread.start();
+	public void startGame() {
+		createTh = new CreateThread(labelVector, iconVector, scoreVector);
+		fallingTh = new FallingThread(labelVector, iconVector); // 게임 스레드
+		createTh.start();
+		fallingTh.start();
 	}
-	
+
 	class GameGroundPanel extends JPanel {
 		public GameGroundPanel() {
 			setLayout(null);
-			add(label);
-			add(labelIcon);
 		}
 	}
-	
+
 	class InputPanel extends JPanel {
 		public InputPanel() {
 			setLayout(new FlowLayout());
@@ -95,68 +78,112 @@ public class GamePanel extends JPanel {
 			add(input);
 		}
 	}
-	
-	public boolean isGameOn() {
-		return gameOn;
-	}
-	
-	public void stopGame() {
-		if(thread == null)
-			return; // 스레드가 없음 
-		thread.interrupt(); // 스레드 강제 종료
-		thread = null;
-		gameOn = false;
-	}
-	
-	public void stopSelfAndNewGame() { // 스레드가 바닥에 닿아서 실패할 때 호출
-		startGame();			
-	}
-	
-	public boolean matchWord(String text) {
-		if(fallingWord != null && fallingWord.equals(text))
-			return true;
-		else
-			return false;
-	}
-	
-	class FallingThread extends Thread {
-		private GamePanel panel;
-		private JLabel label; //게임 숫자를 출력하는 레이블
-		private JLabel labelIcon;
-		private long delay = 200; // 지연 시간의 초깃값 = 200
-		private boolean falling = false; // 떨이지고 있는지. 초깃값 = false
+
+	public class CreateThread extends Thread {
+		private long delay = 3000;
+		private Vector<JLabel> labelVector = null;
+		private Vector<JLabel> iconVector = null;
+		private Vector<Integer> scoreVector = null;
+		private int effectScore = 0;
 		
-		public FallingThread(GamePanel panel, JLabel label, JLabel labelIcon) {
-			this.panel = panel;
-			this.label = label;
-			this.labelIcon = labelIcon;
+		void createWord() {
+			int effectWord = (int) (Math.random() * 100);
+			int colorWord = (int) (Math.random() * 100);
+			int xLocation = (int) (Math.random() * 290) + 1;
+			ImageIcon oriIcon = null;
+
+			if (effectWord < 10) {
+				effectScore = 1;
+				oriIcon = new ImageIcon("sun.png");
+			} else if (effectWord >= 10 && effectWord < 20) {
+				effectScore = 1;
+				oriIcon = new ImageIcon("umbrella.png");
+			} else if (effectWord >= 20 && effectWord < 30) {
+				effectScore = 1;
+				oriIcon = new ImageIcon("trash.png");
+			} else if (effectWord >= 30 && effectWord < 35) {
+				effectScore = 1;
+				oriIcon = new ImageIcon("rainbow.png");
+			} else {
+				effectScore = 0;
+				oriIcon = new ImageIcon("rain.png");
+			}
+
+			Image img = oriIcon.getImage();
+			Image img2 = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+			ImageIcon icon = new ImageIcon(img2);
+
+			JLabel label = new JLabel("");
+			String fallingWord = textSource.get();
+			label.setText(fallingWord);
+			label.setSize(200, 30); // 레이블 크기
+			label.setLocation(xLocation, 0); // 레이블 위치
+			label.setForeground(Color.MAGENTA); // 레이블의 글자 색을 설정한다.
+			label.setFont(new Font("Tahoma", Font.ITALIC, 20)); // 레이블 글자의 폰트를 설정한다.
+
+			JLabel labelIcon = new JLabel();
+			labelIcon.setIcon(icon);
+			labelIcon.setSize(30, 30);
+			labelIcon.setLocation(xLocation - 30, 0);
+			
+			labelVector.addElement(label);
+			iconVector.addElement(labelIcon);
+			scoreVector.addElement(effectScore);
+			gameGroundPanel.add(label);
+			gameGroundPanel.add(labelIcon);
 		}
-		
-		public boolean isFalling() {
-			return falling; 
-		}	
-		
-		@Override
+
+		public CreateThread(Vector<JLabel> labelVector, Vector<JLabel> iconVector, Vector<Integer> scoreVector) {
+			this.labelVector = labelVector;
+			this.iconVector = iconVector;
+			this.scoreVector = scoreVector;
+		}
+
 		public void run() {
-			falling = true;
-			while(true) {
+			while (true) {
+				createWord();
+				gameGroundPanel.repaint();
 				try {
 					sleep(delay);
-					int y = label.getY() + 5; //5픽셀 씩 아래로 이동
-					if(y >= panel.getHeight()-label.getHeight()) {
-						falling = false;
-						label.setText("");
-						panel.stopSelfAndNewGame();
-						break; // 스레드 종료
-					}
-					labelIcon.setLocation(label.getX() - 30, y);
-					label.setLocation(label.getX(), y);
-					GamePanel.this.repaint();
 				} catch (InterruptedException e) {
-					falling = false;
-					return; // 스레드 종료
+					return;
 				}
 			}
-		}	
+		}
+	}
+
+	public class FallingThread extends Thread {
+		private long delay = 200;
+		private Vector<JLabel> labelVector = null;
+		private Vector<JLabel> iconVector = null;
+
+		public FallingThread(Vector<JLabel> labelVector, Vector<JLabel> iconVector) {
+			this.labelVector = labelVector;
+			this.iconVector = iconVector;
+		}
+
+		public void run() {
+			while (true) {
+				for (int i = 0; i < labelVector.size(); i++) {
+					int x = labelVector.get(i).getX();
+					int y = labelVector.get(i).getY() + 5;
+					if (y >= gameGroundPanel.getHeight() - labelVector.get(i).getHeight()) { 
+						gameGroundPanel.remove(labelVector.get(i));
+						labelVector.remove(i);
+						gameGroundPanel.remove(iconVector.get(i));
+						iconVector.remove(i);
+						scoreVector.remove(i);
+					}
+					iconVector.get(i).setLocation(x - 30, y);
+					labelVector.get(i).setLocation(x, y);
+					gameGroundPanel.repaint();				
+				}
+				try {
+					sleep(delay);
+				} catch (InterruptedException e) {
+					return;
+				}
+			}
+		}
 	}
 }

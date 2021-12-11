@@ -20,8 +20,13 @@ public class ScorePanel extends JPanel {
 		add(scoreLabel);
 	}
 	
-	public void increase() {
+	public void increase10() {
 		score += 10;
+		scoreLabel.setText(Integer.toString(score));
+	}
+	
+	public void increase20() {
+		score += 20;
 		scoreLabel.setText(Integer.toString(score));
 	}
 }
