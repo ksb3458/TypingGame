@@ -17,7 +17,7 @@ public class ScorePanel extends JPanel {
 		
 		scoreLabel.setSize(100, 20);
 		scoreLabel.setLocation(70, 10);
-		add(scoreLabel);		
+		add(scoreLabel);
 	}
 	
 	public void increase() {
