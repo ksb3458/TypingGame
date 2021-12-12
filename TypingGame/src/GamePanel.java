@@ -24,6 +24,7 @@ public class GamePanel extends JPanel {
 	private TextSource textSource = new TextSource("words.txt"); // 단어 벡터 생성
 	private CreateThread createTh = null;
 	private FallingThread fallingTh = null;
+	private boolean umbrella = false;
 	private Vector<JLabel> labelVector = new Vector<JLabel>();
 	private Vector<JLabel> iconVector = new Vector<JLabel>();
 	private Vector<Integer> scoreVector = new Vector<Integer>();
@@ -43,15 +44,24 @@ public class GamePanel extends JPanel {
 				for (int i = 0; i < labelVector.size(); i++) {
 					if (labelVector.get(i).getText().equals(inWord)) { // 맞추기 성공
 						if (scoreVector.get(i) == 0)
-							scorePanel.increase10();
+							scorePanel.increase();
 						else if (scoreVector.get(i) == 1)
-							scorePanel.increase20();
+							scorePanel.sun();
+						else if (scoreVector.get(i) == 2) {
+							umbrella = true;
+						}
+						else if (scoreVector.get(i) == 3) {
+							
+						}
+						else if (scoreVector.get(i) == 4)
+							scorePanel.trash();
 						tf.setText("");
 						gameGroundPanel.remove(labelVector.get(i));
 						gameGroundPanel.remove(iconVector.get(i));
 						labelVector.remove(i);
 						iconVector.remove(i);
 						scoreVector.remove(i);
+						gameGroundPanel.repaint();
 					}
 				}
 			}
@@ -96,13 +106,13 @@ public class GamePanel extends JPanel {
 				effectScore = 1;
 				oriIcon = new ImageIcon("sun.png");
 			} else if (effectWord >= 10 && effectWord < 20) {
-				effectScore = 1;
+				effectScore = 2;
 				oriIcon = new ImageIcon("umbrella.png");
 			} else if (effectWord >= 20 && effectWord < 30) {
-				effectScore = 1;
+				effectScore = 4;
 				oriIcon = new ImageIcon("trash.png");
 			} else if (effectWord >= 30 && effectWord < 35) {
-				effectScore = 1;
+				effectScore = 3;
 				oriIcon = new ImageIcon("rainbow.png");
 			} else {
 				effectScore = 0;
@@ -144,7 +154,11 @@ public class GamePanel extends JPanel {
 				createWord();
 				gameGroundPanel.repaint();
 				try {
-					sleep(delay);
+					if(umbrella == true) {
+						sleep(10000);
+						umbrella = false;
+					}
+					else sleep(delay);
 				} catch (InterruptedException e) {
 					return;
 				}
@@ -179,7 +193,11 @@ public class GamePanel extends JPanel {
 					gameGroundPanel.repaint();				
 				}
 				try {
-					sleep(delay);
+					if(umbrella == true) {
+						sleep(10000);
+						umbrella = false;
+					}
+					else sleep(delay);
 				} catch (InterruptedException e) {
 					return;
 				}

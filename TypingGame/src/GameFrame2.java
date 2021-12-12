@@ -118,6 +118,7 @@ public class GameFrame2 extends JFrame {
 					splitPane();
 					setResizable(false);
 					repaint();
+					scorePanel.startTimer();
 					gamePanel.startGame();
 				}
 			});
