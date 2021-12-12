@@ -70,6 +70,10 @@ public class ScorePanel extends JPanel {
 		timerNum.start();
 	}
 	
+	public void stopTimer() {
+		timerNum.interrupt();
+	}
+	
 	class TimerNum extends Thread {
 		private int second;
 		private String showSecond;
@@ -83,26 +87,26 @@ public class ScorePanel extends JPanel {
 		@Override
 		public void run() {
 			while (true) {
+				if(checkSun == true) {
+					second += 10;
+					checkSun = false;
+				}
+				
 				if(second % 60 < 10)
 					showSecond = "0" + Integer.toString(second % 60);
 				else
 					showSecond = Integer.toString(second % 60);
 				timerLabel.setText(Integer.toString(second / 60) + " : " + showSecond);
 				second--;
-				
-				if(checkSun == true) {
-					second += 10;
-					checkSun = false;
-				}
-				
+							
 				if(second < 0) {
 					return;
 				}
 				
 				try {
-					Thread.sleep(1000);	// 1ÃÊ
+					sleep(1000);
 				} catch (Exception e) {
-					e.printStackTrace();
+					return;
 				}
 			}
 		}

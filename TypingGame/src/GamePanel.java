@@ -25,6 +25,7 @@ public class GamePanel extends JPanel {
 	private CreateThread createTh = null;
 	private FallingThread fallingTh = null;
 	private boolean umbrella = false;
+	private int lifeNum = 4;
 	private Vector<JLabel> labelVector = new Vector<JLabel>();
 	private Vector<JLabel> iconVector = new Vector<JLabel>();
 	private Vector<Integer> scoreVector = new Vector<Integer>();
@@ -49,12 +50,18 @@ public class GamePanel extends JPanel {
 							scorePanel.sun();
 						else if (scoreVector.get(i) == 2) {
 							umbrella = true;
-						}
-						else if (scoreVector.get(i) == 3) {
-							
-						}
-						else if (scoreVector.get(i) == 4)
+						} else if (scoreVector.get(i) == 3) {
+
+						} else if (scoreVector.get(i) == 4) {
 							scorePanel.trash();
+							lifeNum--;
+							if(lifeNum == 0) {
+								stopGame();
+								scorePanel.stopTimer();
+								tf.setText("");
+								break;
+							}
+						}
 						tf.setText("");
 						gameGroundPanel.remove(labelVector.get(i));
 						gameGroundPanel.remove(iconVector.get(i));
@@ -73,6 +80,19 @@ public class GamePanel extends JPanel {
 		fallingTh = new FallingThread(labelVector, iconVector); // 게임 스레드
 		createTh.start();
 		fallingTh.start();
+	}
+
+	public void stopGame() {
+		for (int i = 0; i < labelVector.size(); i++) {
+			gameGroundPanel.remove(labelVector.get(i));
+			gameGroundPanel.remove(iconVector.get(i));		
+			gameGroundPanel.repaint();
+		}
+		labelVector.clear();
+		iconVector.clear();
+		scoreVector.clear();
+		createTh.interrupt();
+		fallingTh.interrupt();
 	}
 
 	class GameGroundPanel extends JPanel {
@@ -95,14 +115,14 @@ public class GamePanel extends JPanel {
 		private Vector<JLabel> iconVector = null;
 		private Vector<Integer> scoreVector = null;
 		private int effectScore = 0;
-		
+
 		void createWord() {
 			int effectWord = (int) (Math.random() * 100);
 			int colorWord = (int) (Math.random() * 100);
 			int xLocation = (int) (Math.random() * 290) + 1;
 			ImageIcon oriIcon = null;
 
-			if (effectWord < 10) {
+			if (effectWord < 50) {
 				effectScore = 1;
 				oriIcon = new ImageIcon("sun.png");
 			} else if (effectWord >= 10 && effectWord < 20) {
@@ -135,7 +155,7 @@ public class GamePanel extends JPanel {
 			labelIcon.setIcon(icon);
 			labelIcon.setSize(30, 30);
 			labelIcon.setLocation(xLocation - 30, 0);
-			
+
 			labelVector.addElement(label);
 			iconVector.addElement(labelIcon);
 			scoreVector.addElement(effectScore);
@@ -154,11 +174,11 @@ public class GamePanel extends JPanel {
 				createWord();
 				gameGroundPanel.repaint();
 				try {
-					if(umbrella == true) {
+					if (umbrella == true) {
 						sleep(10000);
 						umbrella = false;
-					}
-					else sleep(delay);
+					} else
+						sleep(delay);
 				} catch (InterruptedException e) {
 					return;
 				}
@@ -181,23 +201,24 @@ public class GamePanel extends JPanel {
 				for (int i = 0; i < labelVector.size(); i++) {
 					int x = labelVector.get(i).getX();
 					int y = labelVector.get(i).getY() + 5;
-					if (y >= gameGroundPanel.getHeight() - labelVector.get(i).getHeight()) { 
+					if (y >= gameGroundPanel.getHeight() - labelVector.get(i).getHeight()) {
 						gameGroundPanel.remove(labelVector.get(i));
 						labelVector.remove(i);
 						gameGroundPanel.remove(iconVector.get(i));
 						iconVector.remove(i);
 						scoreVector.remove(i);
+						continue;
 					}
 					iconVector.get(i).setLocation(x - 30, y);
 					labelVector.get(i).setLocation(x, y);
-					gameGroundPanel.repaint();				
+					gameGroundPanel.repaint();
 				}
 				try {
-					if(umbrella == true) {
+					if (umbrella == true) {
 						sleep(10000);
 						umbrella = false;
-					}
-					else sleep(delay);
+					} else
+						sleep(delay);
 				} catch (InterruptedException e) {
 					return;
 				}
