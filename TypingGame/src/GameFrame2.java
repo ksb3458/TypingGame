@@ -27,8 +27,11 @@ public class GameFrame2 extends JFrame {
 
 	private StartPanel startPanel = new StartPanel();
 	private ScorePanel scorePanel = new ScorePanel();
-	private PlantPanel plantPanel = new PlantPanel();
-	private GamePanel gamePanel = new GamePanel(scorePanel, plantPanel);
+	private PlantPanel plantPanel = new PlantPanel();	
+	private int userLan = 0;
+	private int userLevel = 0;
+	private String[] userInfo = {"0", "0", "0"};
+	private GamePanel gamePanel = new GamePanel(scorePanel, plantPanel, userInfo);
 
 	public GameFrame2() {
 		setTitle("타이핑 게임");
@@ -81,8 +84,8 @@ public class GameFrame2 extends JFrame {
 				lanSelect[i].setOpaque(false);
 				lanGroup.add(lanSelect[i]);
 			}
-			lanSelect[0].setBounds(120, 250, 200, 30);
-			lanSelect[1].setBounds(200, 250, 200, 30);
+			lanSelect[0].setBounds(120, 250, 100, 30);
+			lanSelect[1].setBounds(220, 250, 100, 30);
 			lanSelect[0].setSelected(true);
 			add(lanLabel);
 			add(lanSelect[0]);
@@ -112,7 +115,16 @@ public class GameFrame2 extends JFrame {
 			gameStartBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					gamePanel = new GamePanel(scorePanel, plantPanel);
+					userInfo[0] = name.getText();
+					if(lanSelect[0].isSelected())
+						userLan = 0;
+					else userLan = 1;
+					userInfo[1] = Integer.toString(userLan);
+					userLevel = levelSelect.getSelectedIndex();
+					userInfo[2] = Integer.toString(userLevel);
+					System.out.println("userLan : " + userLan + ", userLevel : " + userLevel);
+					
+					gamePanel = new GamePanel(scorePanel, plantPanel, userInfo);
 					closePanel();
 					getContentPane().setLayout(new BorderLayout());
 					splitPane();

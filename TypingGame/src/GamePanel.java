@@ -20,8 +20,11 @@ public class GamePanel extends JPanel {
 	private JTextField input = new JTextField(30);
 	private ScorePanel scorePanel = null;
 	private PlantPanel plantPanel = null;
+	private int userLan, userLevel;
+	private String userName;
+	private String[] userInfo = new String[3];
 	private GameGroundPanel gameGroundPanel = new GameGroundPanel();
-	private TextSource textSource = new TextSource("words.txt"); // 단어 벡터 생성
+	private TextSource textSource = null; // 단어 벡터 생성
 	private CreateThread createTh = null;
 	private FallingThread fallingTh = null;
 	private boolean umbrella = false;
@@ -30,9 +33,13 @@ public class GamePanel extends JPanel {
 	private Vector<JLabel> iconVector = new Vector<JLabel>();
 	private Vector<Integer> scoreVector = new Vector<Integer>();
 
-	public GamePanel(ScorePanel scorePanel, PlantPanel plantPanel) {
+	public GamePanel(ScorePanel scorePanel, PlantPanel plantPanel, String[] userInfo) {
 		this.scorePanel = scorePanel;
 		this.plantPanel = plantPanel;
+		this.userInfo = userInfo;
+		userName = userInfo[0];
+		userLan = Integer.parseInt(userInfo[1]);
+		userLevel = Integer.parseInt(userInfo[2]);
 
 		setLayout(new BorderLayout());
 		add(gameGroundPanel, BorderLayout.CENTER);
@@ -76,8 +83,13 @@ public class GamePanel extends JPanel {
 	}
 
 	public void startGame() {
+		if(userLan == 0) {
+			textSource = new TextSource("한글.txt");
+		}
+		else
+			textSource = new TextSource("words.txt");
 		createTh = new CreateThread(labelVector, iconVector, scoreVector);
-		fallingTh = new FallingThread(labelVector, iconVector); // 게임 스레드
+		fallingTh = new FallingThread(labelVector, iconVector);
 		createTh.start();
 		fallingTh.start();
 	}
