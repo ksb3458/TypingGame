@@ -27,7 +27,7 @@ public class GameFrame2 extends JFrame {
 	private int heartNum = 0;
 	private StartPanel startPanel = new StartPanel();
 	private ScorePanel scorePanel = new ScorePanel(heartNum);
-	private PlantPanel plantPanel = new PlantPanel();
+	private PlantPanel plantPanel = new PlantPanel(scorePanel);
 	private int userLan = 0;
 	private int userLevel = 0;
 	private String[] userInfo = { "0", "0", "0" };
@@ -68,16 +68,16 @@ public class GameFrame2 extends JFrame {
 			title.setFont(titleFont);
 			title.setBounds(150, 90, 500, 50);
 			add(title);
-			
+
 			nameLabel.setFont(basicFont);
-			name.setFont(basicFont);	
+			name.setFont(basicFont);
 			nameLabel.setBounds(50, 190, 200, 30);
 			name.setBounds(120, 190, 200, 30);
 			add(nameLabel);
 			add(name);
 
 			lanLabel.setFont(basicFont);
-			lanLabel.setBounds(50, 250, 200, 30);			
+			lanLabel.setBounds(50, 250, 200, 30);
 			for (int i = 0; i < lanSelect.length; i++) {
 				lanSelect[i] = new JRadioButton(language[i]);
 				lanSelect[i].setFont(basicFont);
@@ -99,9 +99,9 @@ public class GameFrame2 extends JFrame {
 			add(levelSelect);
 
 			gameStartBtn.setFont(basicFont);
-			gameStartBtn.setBounds(50, 450, 500, 40);	
+			gameStartBtn.setBounds(50, 450, 500, 40);
 			add(gameStartBtn);
-			
+
 			rankingBtn.setFont(btnFont);
 			rankingBtn.setBounds(400, 270, 150, 30);
 			addKorWordBtn.setFont(btnFont);
@@ -116,16 +116,20 @@ public class GameFrame2 extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					userInfo[0] = name.getText();
-					if(lanSelect[0].isSelected())
+					if (lanSelect[0].isSelected())
 						userLan = 0;
-					else userLan = 1;
+					else
+						userLan = 1;
 					userInfo[1] = Integer.toString(userLan);
 					userLevel = levelSelect.getSelectedIndex();
 					userInfo[2] = Integer.toString(userLevel);
 					System.out.println("userLan : " + userLan + ", userLevel : " + userLevel);
-					if(userLevel < 2) heartNum = 2;
-					else heartNum = 4;
+					if (userLevel < 2)
+						heartNum = 2;
+					else
+						heartNum = 4;
 					scorePanel = new ScorePanel(heartNum);
+					plantPanel = new PlantPanel(scorePanel);
 					gamePanel = new GamePanel(scorePanel, plantPanel, userInfo);
 					closePanel();
 					getContentPane().setLayout(new BorderLayout());
@@ -140,10 +144,58 @@ public class GameFrame2 extends JFrame {
 			rankingBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					closePanel();
+					int first, second;
+					if (lanSelect[0].isSelected())
+						first = 0;
+					else
+						first = 1;
+					second = levelSelect.getSelectedIndex();
+					
+					try {
+						BufferedReader br = new BufferedReader(new InputStreamReader(
+								new FileInputStream(Integer.toString(first) + Integer.toString(second) + ".txt"),
+								"MS949"));
+						String line = "";
+						
+						int num = 0;		
+						int[] sortTime = new int[1000];
+						String[] sortName = new String[1000];
+						for (int i = 0; (line = br.readLine()) != null; i++) {
+							String sortInfo[] = line.split(" ");
+							sortTime[i] = Integer.parseInt(sortInfo[1]);
+							sortName[i] = sortInfo[0];
+							num++;
+						}
+						br.close();
+						
+						for (int i = 0; i < num; i++) {
+							for (int j = i + 1; j < num; j++) {
+								if (sortTime[j] > sortTime[i]) {
+									int temp = sortTime[i];
+									sortTime[i] = sortTime[j];
+									sortTime[j] = temp;
+									String str = sortName[i];
+									sortName[i] = sortName[j];
+									sortName[j] = str;
+								}
+							}
+						}
+						
+						String result = null;
+						for (int i = 0; i < 10; i++) {
+							if(sortName[i] == null) break;
+							result = String.format(result + sortName[i] + " " + sortTime[i] + "\n");
+						}
+						
+						int rank = JOptionPane.showConfirmDialog(null, result, "남은 시간 순위", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
+						
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
-			
+
 			addKorWordBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

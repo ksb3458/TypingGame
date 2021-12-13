@@ -18,7 +18,7 @@ public class TextSource {
 			if (fileName.equals("ÇÑ±Û.txt")) {
 				br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "utf-8"));
 				String line = "";
-				for (int i = 1; (line = br.readLine()) != null; i++) {
+				for (int i = 0; (line = br.readLine()) != null; i++) {
 					wordVector.add(line);
 					//System.out.println(line);
 				}

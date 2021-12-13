@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -54,17 +56,37 @@ public class GamePanel extends JPanel {
 				for (int i = 0; i < labelVector.size(); i++) {
 					if (labelVector.get(i).getText().equals(inWord)) { // 맞추기 성공
 						if (scoreVector.get(i) == 0)
-							scorePanel.increase();
-						else if (scoreVector.get(i) == 1)
+							scorePanel.increase(10);
+						else if (scoreVector.get(i) == 1) {
 							scorePanel.sun();
+							scorePanel.increase(10);
+						}
 						else if (scoreVector.get(i) == 2) {
 							umbrella = true;
+							scorePanel.increase(10);
 						} else if (scoreVector.get(i) == 3) {
-
+							int count = labelVector.size();
+							stopGame();
+							scorePanel.increase(10*count);
+							startGame();
+							tf.setText("");
+							break;
 						} else if (scoreVector.get(i) == 4) {
 							controlLife();
 						}
 						tf.setText("");
+						if(scorePanel.getScore() >= 300) {
+							try {
+								FileWriter file = new FileWriter(Integer.toString(userLan) + Integer.toString(userLevel) + ".txt", true);
+								file.write(userName + " " +scorePanel.getTime()+"\n");
+								file.flush();
+								scorePanel.winGame();
+							}
+							catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
 						gameGroundPanel.remove(labelVector.get(i));
 						gameGroundPanel.remove(iconVector.get(i));
 						labelVector.remove(i);
@@ -94,11 +116,11 @@ public class GamePanel extends JPanel {
 		
 		if(userLevel == 0 || userLevel == 1) {
 			dcLife = false;
-			lifeNum = 4;
+			lifeNum = 3;
 		}
 		else {
 			dcLife = true;
-			lifeNum = 2;
+			lifeNum = 5;
 		}
 		
 		createTh = new CreateThread(labelVector, iconVector, scoreVector);
@@ -127,6 +149,7 @@ public class GamePanel extends JPanel {
 			stopGame();
 			scorePanel.stopTimer();
 			//tf.setText("");
+			scorePanel.loseGame();
 			return;
 		}
 	}
@@ -155,7 +178,7 @@ public class GamePanel extends JPanel {
 		void createWord() {
 			int effectWord = (int) (Math.random() * 100);
 			int colorWord = (int) (Math.random() * 100);
-			int xLocation = (int) (Math.random() * 290) + 1;
+			int xLocation = (int) (Math.random() * 260) + 31;
 			ImageIcon oriIcon = null;
 
 			if (effectWord < 10) {
@@ -241,13 +264,13 @@ public class GamePanel extends JPanel {
 					int x = labelVector.get(i).getX();
 					int y = labelVector.get(i).getY() + 5;
 					if (y >= gameGroundPanel.getHeight() - labelVector.get(i).getHeight()) {
+						if(dcLife == true && scoreVector.get(i) != 4)
+							controlLife();
 						gameGroundPanel.remove(labelVector.get(i));
 						labelVector.remove(i);
 						gameGroundPanel.remove(iconVector.get(i));
 						iconVector.remove(i);
 						scoreVector.remove(i);
-						if(dcLife == true)
-							controlLife();
 						continue;
 					}
 					iconVector.get(i).setLocation(x - 30, y);

@@ -53,18 +53,9 @@ public class ScorePanel extends JPanel {
 		add(scoreLabel);
 	}
 	
-	public void increase() {
-		score += 10;
+	public void increase(int addScore) {
+		score += addScore;
 		scoreLabel.setText(Integer.toString(score));
-		if(score >= 300)
-			winGame();
-	}
-	
-	public void increase20() {
-		score += 20;
-		scoreLabel.setText(Integer.toString(score));
-		if(score >= 300)
-			winGame();
 	}
 	
 	public void trash() {
@@ -104,6 +95,16 @@ public class ScorePanel extends JPanel {
 			GameFrame2 gameFrame = new GameFrame2();
 			setVisible(false);
 		}
+	}
+	
+	public int getScore() {
+		return score;
+	}
+	
+	public String getTime() {
+		String[] time = timerLabel.getText().split(" ");
+		int second = (Integer.parseInt(time[0]) * 60 ) + Integer.parseInt(time[2]);
+		return Integer.toString(second);
 	}
 	
 	class TimerNum extends Thread {
