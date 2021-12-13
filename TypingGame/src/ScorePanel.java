@@ -1,23 +1,29 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class ScorePanel extends JPanel {
 	private int score = 0;
-	private int lifeNum = 4;
+	private int lifeNum = 0;
 	private JLabel textLabel = new JLabel("점수");
 	private JLabel scoreLabel = new JLabel(Integer.toString(score));
 	private ImageIcon heartImage = new ImageIcon("heart.png");
 	private JLabel timerLabel = new JLabel();
 	private TimerNum timerNum = new TimerNum(120, timerLabel);
-	private JLabel[] life = new JLabel[5];
+	private JLabel[] life = null;
 	private boolean checkSun = false;
+	private GameFrame2 gameFrame = null;
 	
-	public ScorePanel() {
+	public ScorePanel(int heartNum) {
+		lifeNum = heartNum;
+		life = new JLabel[lifeNum + 1];
 		setLayout(null);	
 		Image img = heartImage.getImage();
 		Image img2 = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
@@ -50,11 +56,15 @@ public class ScorePanel extends JPanel {
 	public void increase() {
 		score += 10;
 		scoreLabel.setText(Integer.toString(score));
+		if(score >= 300)
+			winGame();
 	}
 	
 	public void increase20() {
 		score += 20;
 		scoreLabel.setText(Integer.toString(score));
+		if(score >= 300)
+			winGame();
 	}
 	
 	public void trash() {
@@ -72,6 +82,28 @@ public class ScorePanel extends JPanel {
 	
 	public void stopTimer() {
 		timerNum.interrupt();
+	}
+	
+	public void winGame() {
+		int result = JOptionPane.showConfirmDialog(this, "성공하였습니다.\n다시 도전하시겠습니까?", "게임 성공", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+		if(result == JOptionPane.CLOSED_OPTION || result == JOptionPane.NO_OPTION) {
+			System.exit(0);
+		}
+		else if(result == JOptionPane.YES_OPTION) {
+			GameFrame2 gameFrame = new GameFrame2();
+			setVisible(false);
+		}
+	}
+	
+	public void loseGame() {
+		int result = JOptionPane.showConfirmDialog(this, "실패하였습니다.\n다시 도전하시겠습니까?", "게임 실패", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+		if(result == JOptionPane.CLOSED_OPTION || result == JOptionPane.NO_OPTION) {
+			System.exit(0);
+		}
+		else if(result == JOptionPane.YES_OPTION) {
+			GameFrame2 gameFrame = new GameFrame2();
+			setVisible(false);
+		}
 	}
 	
 	class TimerNum extends Thread {
@@ -100,6 +132,7 @@ public class ScorePanel extends JPanel {
 				second--;
 							
 				if(second < 0) {
+					loseGame();
 					return;
 				}
 				

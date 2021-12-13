@@ -28,7 +28,9 @@ public class GamePanel extends JPanel {
 	private CreateThread createTh = null;
 	private FallingThread fallingTh = null;
 	private boolean umbrella = false;
-	private int lifeNum = 4;
+	private int lifeNum;
+	private int fallingDelay;
+	private boolean dcLife = false;
 	private Vector<JLabel> labelVector = new Vector<JLabel>();
 	private Vector<JLabel> iconVector = new Vector<JLabel>();
 	private Vector<Integer> scoreVector = new Vector<Integer>();
@@ -60,14 +62,7 @@ public class GamePanel extends JPanel {
 						} else if (scoreVector.get(i) == 3) {
 
 						} else if (scoreVector.get(i) == 4) {
-							scorePanel.trash();
-							lifeNum--;
-							if(lifeNum == 0) {
-								stopGame();
-								scorePanel.stopTimer();
-								tf.setText("");
-								break;
-							}
+							controlLife();
 						}
 						tf.setText("");
 						gameGroundPanel.remove(labelVector.get(i));
@@ -88,8 +83,26 @@ public class GamePanel extends JPanel {
 		}
 		else
 			textSource = new TextSource("words.txt");
+		
+		if(userLevel == 0 || userLevel == 2) {
+			fallingDelay = 200;
+		}
+		
+		else if (userLevel == 1 || userLevel == 3) {
+			fallingDelay = 100;
+		}
+		
+		if(userLevel == 0 || userLevel == 1) {
+			dcLife = false;
+			lifeNum = 4;
+		}
+		else {
+			dcLife = true;
+			lifeNum = 2;
+		}
+		
 		createTh = new CreateThread(labelVector, iconVector, scoreVector);
-		fallingTh = new FallingThread(labelVector, iconVector);
+		fallingTh = new FallingThread(labelVector, iconVector, fallingDelay, dcLife);
 		createTh.start();
 		fallingTh.start();
 	}
@@ -105,6 +118,17 @@ public class GamePanel extends JPanel {
 		scoreVector.clear();
 		createTh.interrupt();
 		fallingTh.interrupt();
+	}
+	
+	public void controlLife() {
+		scorePanel.trash();
+		lifeNum--;
+		if(lifeNum == 0) {
+			stopGame();
+			scorePanel.stopTimer();
+			//tf.setText("");
+			return;
+		}
 	}
 
 	class GameGroundPanel extends JPanel {
@@ -134,7 +158,7 @@ public class GamePanel extends JPanel {
 			int xLocation = (int) (Math.random() * 290) + 1;
 			ImageIcon oriIcon = null;
 
-			if (effectWord < 50) {
+			if (effectWord < 10) {
 				effectScore = 1;
 				oriIcon = new ImageIcon("sun.png");
 			} else if (effectWord >= 10 && effectWord < 20) {
@@ -161,7 +185,7 @@ public class GamePanel extends JPanel {
 			label.setSize(200, 30); // 레이블 크기
 			label.setLocation(xLocation, 0); // 레이블 위치
 			label.setForeground(Color.MAGENTA); // 레이블의 글자 색을 설정한다.
-			label.setFont(new Font("Tahoma", Font.ITALIC, 20)); // 레이블 글자의 폰트를 설정한다.
+			label.setFont(new Font("맑은고딕", Font.ITALIC, 20)); // 레이블 글자의 폰트를 설정한다.
 
 			JLabel labelIcon = new JLabel();
 			labelIcon.setIcon(icon);
@@ -199,13 +223,16 @@ public class GamePanel extends JPanel {
 	}
 
 	public class FallingThread extends Thread {
-		private long delay = 200;
+		private int delay;
+		private boolean dcLife;
 		private Vector<JLabel> labelVector = null;
 		private Vector<JLabel> iconVector = null;
 
-		public FallingThread(Vector<JLabel> labelVector, Vector<JLabel> iconVector) {
+		public FallingThread(Vector<JLabel> labelVector, Vector<JLabel> iconVector, int delay, boolean dcLife) {
 			this.labelVector = labelVector;
 			this.iconVector = iconVector;
+			this.delay = delay;
+			this.dcLife = dcLife;
 		}
 
 		public void run() {
@@ -219,6 +246,8 @@ public class GamePanel extends JPanel {
 						gameGroundPanel.remove(iconVector.get(i));
 						iconVector.remove(i);
 						scoreVector.remove(i);
+						if(dcLife == true)
+							controlLife();
 						continue;
 					}
 					iconVector.get(i).setLocation(x - 30, y);
@@ -229,8 +258,14 @@ public class GamePanel extends JPanel {
 					if (umbrella == true) {
 						sleep(10000);
 						umbrella = false;
-					} else
-						sleep(delay);
+					} else {
+						if(delay == 0) {
+							delay = (int)(Math.random()*100) + 100;
+							sleep(delay);
+							delay = 0;
+						}
+						else sleep(delay);		
+					}
 				} catch (InterruptedException e) {
 					return;
 				}

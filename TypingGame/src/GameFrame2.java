@@ -24,13 +24,13 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 public class GameFrame2 extends JFrame {
-
+	private int heartNum = 0;
 	private StartPanel startPanel = new StartPanel();
-	private ScorePanel scorePanel = new ScorePanel();
-	private PlantPanel plantPanel = new PlantPanel();	
+	private ScorePanel scorePanel = new ScorePanel(heartNum);
+	private PlantPanel plantPanel = new PlantPanel();
 	private int userLan = 0;
 	private int userLevel = 0;
-	private String[] userInfo = {"0", "0", "0"};
+	private String[] userInfo = { "0", "0", "0" };
 	private GamePanel gamePanel = new GamePanel(scorePanel, plantPanel, userInfo);
 
 	public GameFrame2() {
@@ -123,7 +123,9 @@ public class GameFrame2 extends JFrame {
 					userLevel = levelSelect.getSelectedIndex();
 					userInfo[2] = Integer.toString(userLevel);
 					System.out.println("userLan : " + userLan + ", userLevel : " + userLevel);
-					
+					if(userLevel < 2) heartNum = 2;
+					else heartNum = 4;
+					scorePanel = new ScorePanel(heartNum);
 					gamePanel = new GamePanel(scorePanel, plantPanel, userInfo);
 					closePanel();
 					getContentPane().setLayout(new BorderLayout());
@@ -145,25 +147,33 @@ public class GameFrame2 extends JFrame {
 			addKorWordBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					String addWord = JOptionPane.showInputDialog("추가할 한글 단어를 입력해주세요.");
+					try {
+						FileWriter file = new FileWriter("한글.txt", true);
+						file.write("\n" + addWord);
+						file.flush();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 
 			addEngWordBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					String addWord = JOptionPane.showInputDialog("추가할 영어 단어를 입력해주세요.");
+					try {
+						FileWriter file = new FileWriter("words.txt", true);
+						file.write("\n" + addWord);
+						file.flush();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 
-		}
-		
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			ImageIcon icon = new ImageIcon("pngegg (5).png");
-			g.drawImage(icon.getImage(), 0, 0, this.getWidth(), this.getHeight(), this);
-			setOpaque(false);
 		}
 
 		public void closePanel() {
@@ -196,20 +206,28 @@ public class GameFrame2 extends JFrame {
 			addEngWordBtn.setVisible(true);
 		}
 
-		private void splitPane() {
-			JSplitPane hPane = new JSplitPane();
-			getContentPane().add(hPane, BorderLayout.CENTER);
-			hPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-			hPane.setDividerLocation(400);
-			hPane.setEnabled(false);
-			hPane.setLeftComponent(gamePanel);
-			
-			JSplitPane pPane = new JSplitPane();
-			pPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			pPane.setDividerLocation(350);
-			pPane.setTopComponent(scorePanel);
-			pPane.setBottomComponent(plantPanel);
-			hPane.setRightComponent(pPane);
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			ImageIcon icon = new ImageIcon("pngegg (5).png");
+			g.drawImage(icon.getImage(), 0, 0, this.getWidth(), this.getHeight(), this);
+			setOpaque(false);
 		}
+	}
+
+	private void splitPane() {
+		JSplitPane hPane = new JSplitPane();
+		getContentPane().add(hPane, BorderLayout.CENTER);
+		hPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		hPane.setDividerLocation(400);
+		hPane.setEnabled(false);
+		hPane.setLeftComponent(gamePanel);
+
+		JSplitPane pPane = new JSplitPane();
+		pPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		pPane.setDividerLocation(350);
+		pPane.setTopComponent(scorePanel);
+		pPane.setBottomComponent(plantPanel);
+		hPane.setRightComponent(pPane);
 	}
 }

@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class PlantPanel extends JPanel {
+	
 	private ImageIcon plant1 = new ImageIcon("1.png");
 	private ImageIcon plant2 = new ImageIcon("2.png");
 	private ImageIcon plant3 = new ImageIcon("3.png");
