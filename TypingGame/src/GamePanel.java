@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,6 +14,9 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -36,6 +40,7 @@ public class GamePanel extends JPanel {
 	private Vector<JLabel> labelVector = new Vector<JLabel>();
 	private Vector<JLabel> iconVector = new Vector<JLabel>();
 	private Vector<Integer> scoreVector = new Vector<Integer>();
+	private Clip rightClip, wrongClip;
 
 	public GamePanel(ScorePanel scorePanel, PlantPanel plantPanel, String[] userInfo) {
 		this.scorePanel = scorePanel;
@@ -55,6 +60,7 @@ public class GamePanel extends JPanel {
 				String inWord = tf.getText();
 				for (int i = 0; i < labelVector.size(); i++) {
 					if (labelVector.get(i).getText().equals(inWord)) { // 맞추기 성공
+						musicPlay("correct.wav");
 						if (scoreVector.get(i) == 0)
 							scorePanel.increase(10);
 						else if (scoreVector.get(i) == 1) {
@@ -151,6 +157,17 @@ public class GamePanel extends JPanel {
 			//tf.setText("");
 			scorePanel.loseGame();
 			return;
+		}
+	}
+	
+	public void musicPlay(String fileName) {
+		try {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(fileName));
+			Clip clip = AudioSystem.getClip();
+			clip.stop();
+			clip.open(ais);
+			clip.start();
+		} catch (Exception ex) {
 		}
 	}
 

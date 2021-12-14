@@ -1,15 +1,20 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -31,6 +36,7 @@ public class GameFrame2 extends JFrame {
 	private int userLan = 0;
 	private int userLevel = 0;
 	private String[] userInfo = { "0", "0", "0" };
+	private Clip clip;
 	private GamePanel gamePanel = new GamePanel(scorePanel, plantPanel, userInfo);
 
 	public GameFrame2() {
@@ -42,9 +48,9 @@ public class GameFrame2 extends JFrame {
 	}
 
 	public class StartPanel extends JPanel {
-		private Font basicFont = new Font("µ¸¿ò", 1, 20);
-		private Font titleFont = new Font("µ¸¿ò", 1, 40);
-		private Font btnFont = new Font("µ¸¿ò", 1, 15);
+		private Font basicFont = new Font("ÇÑÄÄ ¸»¶û¸»¶û", 1, 18);
+		private Font titleFont = new Font("Segoe print", Font.BOLD, 40);
+		private Font btnFont = new Font("ÇÑÄÄ ¸»¶û¸»¶û", 1, 15);
 
 		private JLabel title = new JLabel("TYPING GAME");
 		private JLabel nameLabel = new JLabel("ÀÌ¸§");
@@ -66,10 +72,11 @@ public class GameFrame2 extends JFrame {
 			this.setLayout(null);
 
 			title.setFont(titleFont);
-			title.setBounds(150, 90, 500, 50);
+			title.setBounds(150, 85, 500, 50);
 			add(title);
 
 			nameLabel.setFont(basicFont);
+			nameLabel.setForeground(Color.LIGHT_GRAY);
 			name.setFont(basicFont);
 			nameLabel.setBounds(50, 190, 200, 30);
 			name.setBounds(120, 190, 200, 30);
@@ -77,24 +84,26 @@ public class GameFrame2 extends JFrame {
 			add(name);
 
 			lanLabel.setFont(basicFont);
-			lanLabel.setBounds(50, 250, 200, 30);
+			lanLabel.setForeground(Color.LIGHT_GRAY);
+			lanLabel.setBounds(50, 255, 200, 30);
 			for (int i = 0; i < lanSelect.length; i++) {
 				lanSelect[i] = new JRadioButton(language[i]);
 				lanSelect[i].setFont(basicFont);
 				lanSelect[i].setOpaque(false);
 				lanGroup.add(lanSelect[i]);
 			}
-			lanSelect[0].setBounds(120, 250, 100, 30);
-			lanSelect[1].setBounds(220, 250, 100, 30);
+			lanSelect[0].setBounds(120, 255, 100, 30);
+			lanSelect[1].setBounds(220, 255, 100, 30);
 			lanSelect[0].setSelected(true);
 			add(lanLabel);
 			add(lanSelect[0]);
 			add(lanSelect[1]);
 
 			levelLabel.setFont(basicFont);
+			levelLabel.setForeground(Color.LIGHT_GRAY);
 			levelSelect.setFont(basicFont);
-			levelLabel.setBounds(50, 310, 200, 30);
-			levelSelect.setBounds(120, 310, 200, 30);
+			levelLabel.setBounds(50, 320, 200, 30);
+			levelSelect.setBounds(120, 320, 200, 30);
 			add(levelLabel);
 			add(levelSelect);
 
@@ -103,18 +112,24 @@ public class GameFrame2 extends JFrame {
 			add(gameStartBtn);
 
 			rankingBtn.setFont(btnFont);
-			rankingBtn.setBounds(400, 270, 150, 30);
+			rankingBtn.setBounds(410, 250, 135, 30);
+			//rankingBtn.setBorderPainted(false);
 			addKorWordBtn.setFont(btnFont);
-			addKorWordBtn.setBounds(400, 310, 75, 75);
+			addKorWordBtn.setBounds(410, 290, 135, 30);
+			//addKorWordBtn.setBorderPainted(false);
 			addEngWordBtn.setFont(btnFont);
-			addEngWordBtn.setBounds(475, 310, 75, 75);
+			addEngWordBtn.setBounds(410, 320, 135, 30);
+			//addEngWordBtn.setBorderPainted(false);
 			add(rankingBtn);
 			add(addKorWordBtn);
 			add(addEngWordBtn);
+			musicPlay("intro.wav");
 
 			gameStartBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					clip.stop();
+					clip.close();
 					userInfo[0] = name.getText();
 					if (lanSelect[0].isSelected())
 						userLan = 0;
@@ -184,7 +199,11 @@ public class GameFrame2 extends JFrame {
 						String result = null;
 						for (int i = 0; i < 10; i++) {
 							if(sortName[i] == null) break;
-							result = String.format(result + sortName[i] + " " + sortTime[i] + "\n");
+							
+							if(i == 0)
+								result = String.format(sortName[i] + " " + sortTime[i] + "\n");
+							else
+								result = String.format(result + sortName[i] + " " + sortTime[i] + "\n");
 						}
 						
 						int rank = JOptionPane.showConfirmDialog(null, result, "³²Àº ½Ã°£ ¼øÀ§", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null);
@@ -281,5 +300,17 @@ public class GameFrame2 extends JFrame {
 		pPane.setTopComponent(scorePanel);
 		pPane.setBottomComponent(plantPanel);
 		hPane.setRightComponent(pPane);
+	}
+	
+	public void musicPlay(String fileName) {
+		try {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new File(fileName));
+			//Clip 
+			clip = AudioSystem.getClip();
+			clip.stop();
+			clip.open(ais);
+			clip.start();
+		} catch (Exception ex) {
+		}
 	}
 }
