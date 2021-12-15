@@ -10,15 +10,15 @@ import javax.swing.JPanel;
 public class PlantPanel extends JPanel {
 	
 	private ScorePanel scorePanel = null;
-	private int score = 0;
+	private int score = 0; //현재 점수
 	private ImageIcon plant1 = new ImageIcon("1.png");
 	private ImageIcon plant2 = new ImageIcon("2.png");
 	private ImageIcon plant3 = new ImageIcon("3.png");
 	private ImageIcon plant4 = new ImageIcon("4.png");
-	private ImageIcon plant5 = new ImageIcon("5.png");
-	private ImageIcon plant = plant1;
+	private ImageIcon plant5 = new ImageIcon("5.png"); //점수에 따라 바뀌는 이미지들 저장
+	private ImageIcon plant = plant1; //패널에 출력할 이미지 저장
 	
-	public void paintComponent(Graphics g) { // 배경이미지 설정
+	public void paintComponent(Graphics g) { // 이미지 그리기
 		super.paintComponent(g);
 		g.drawImage(plant.getImage(), 0, 0, this.getWidth(), this.getHeight(), this);
 		setOpaque(false);
@@ -28,18 +28,18 @@ public class PlantPanel extends JPanel {
 		this.scorePanel = scorePanel;
 		this.setLayout(new FlowLayout());
 		GrowPlant growPlant = new GrowPlant();
-		growPlant.start();
+		growPlant.start(); //이미지를 변경해서 그려줄 스레드 시작
 	}
 	
-	class GrowPlant extends Thread {
+	class GrowPlant extends Thread { //이미지를 변경하는 스레드
 		public GrowPlant() {
 		}
 
 		@Override
 		public void run() {
 			while (true) {
-				score = scorePanel.getScore();
-				if(score < 60)
+				score = scorePanel.getScore(); //현재 점수 알아오기
+				if(score < 60) //점수에 따라 이미지 교체
 					plant = plant1;
 				else if(score >= 60 && score < 120)
 					plant = plant2;
@@ -50,7 +50,7 @@ public class PlantPanel extends JPanel {
 				else
 					plant = plant5;
 				
-				repaint();
+				repaint(); //다시 그리기
 				try {
 					sleep(1000);
 				} catch (Exception e) {

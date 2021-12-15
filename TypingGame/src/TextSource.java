@@ -15,11 +15,11 @@ public class TextSource {
 
 	public TextSource(String fileName) {
 		try {
-			if (fileName.equals("한글.txt")) {
-				br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "utf-8"));
+			if (fileName.equals("한글.txt")) { //한글 버전을 선택한 경우
+				br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "utf-8")); //한글을 읽어오기 위하여 utf-8로 인코딩
 				String line = "";
-				for (int i = 0; (line = br.readLine()) != null; i++) {
-					wordVector.add(line);
+				for (int i = 0; (line = br.readLine()) != null; i++) { //다음 라인이 없을때까지
+					wordVector.add(line); //단어를 벡터에 저장
 					//System.out.println(line);
 				}
 				br.close();
@@ -41,7 +41,7 @@ public class TextSource {
 
 	public String get() {
 		final int WORDMAX = wordVector.size(); // 총 단어의 개수
-		int index = (int) (Math.random() * WORDMAX);
+		int index = (int) (Math.random() * WORDMAX); //랜덤 생성
 		return wordVector.get(index);
 	}
 }
